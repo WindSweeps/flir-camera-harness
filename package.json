@@ -1,0 +1,15 @@
+{
+  "name": "flir-camera-harness",
+  "version": "1.0.1",
+  "description": "FLIR camera control and device connection inventory for DeepSeek Harness",
+  "repository": "https://github.com/WindSweeps/flir-camera-harness",
+  "files": ["cordis.patch.yml", "connection_inventory.py", "requirements.txt", "skills/"],
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

@@ -2,6 +2,28 @@
 
 ## DeepSeek Harness（DSH）
 
+### 桌面版插件安装
+
+在 DSH 的「插件」页面选择从 Git 仓库安装，输入
+`https://github.com/WindSweeps/flir-camera-harness`。
+
+连接清单服务需要 Python 3.11 或更新版本。用 DSH 将要调用的 Python 安装依赖：
+
+```sh
+python3 -m pip install -r requirements.txt
+```
+
+Windows 默认使用 `python`，在上述命令中相应替换。使用虚拟环境时，将
+`FLIR_INVENTORY_PYTHON` 设为该环境的 Python 绝对路径，确保从继承该变量的
+环境启动 DSH。
+
+在 Windows x64 相机工作站，将原发行包完整解压至
+`C:/Data/FLIR_Camera_Harness`，或在启动 DSH 前用 `FLIR_RUNTIME_DIR`
+指定实际解压目录。可使用 `FLIR_OUTPUT_DIR` 指定输出目录，使用
+`FLIR_REPLAY=1` 启用内置回放。macOS 和 Linux 会加载连接清单服务。
+
+### CLI 手动配置
+
 相机服务使用已有的 Windows x64 发行包。将发行包完整解压到
 `C:/Data/FLIR_Camera_Harness`，然后将本仓库放到
 `C:/Data/flir-camera-harness`。在仓库目录中使用 Python 3.11 或更新版本执行：

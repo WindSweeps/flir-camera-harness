@@ -1,0 +1,38 @@
+- insert:
+    - id: flir-camera-inventory
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: flir-camera-inventory
+        transport: stdio
+        command: !!js >-
+          process.env.FLIR_INVENTORY_PYTHON || (process.platform === 'win32' ? 'python' : 'python3')
+        args:
+          - !!js >-
+            process.getBuiltinModule('node:path').join(
+              process.getBuiltinModule('node:path').dirname(
+                process.getBuiltinModule('node:module').createRequire(baseUrl).resolve('flir-camera-harness/package.json')
+              ),
+              'connection_inventory.py'
+            )
+        toolCallTimeoutMs: 30000
+    - id: flir-camera
+      name: '@deepseek-ai/dsh-mcp-client'
+      disabled: !!js "process.platform !== 'win32'"
+      config:
+        serverName: flir-camera
+        transport: stdio
+        command: !!js >-
+          process.getBuiltinModule('node:path').join(
+            process.env.FLIR_RUNTIME_DIR || 'C:/Data/FLIR_Camera_Harness',
+            'runtime', 'FLIR_ROI_Camera.exe'
+          )
+        args: !!js >-
+          [
+            '--mcp',
+            '--output-dir',
+            process.env.FLIR_OUTPUT_DIR || process.getBuiltinModule('node:path').join(
+              process.env.FLIR_RUNTIME_DIR || 'C:/Data/FLIR_Camera_Harness', 'data'
+            ),
+            ...(process.env.FLIR_REPLAY === '1' ? ['--replay'] : [])
+          ]
+        toolCallTimeoutMs: 30000
