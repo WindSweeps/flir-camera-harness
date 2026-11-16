@@ -1,0 +1,45 @@
+{
+  "name": "flir-camera-harness",
+  "version": "1.0.0",
+  "kind": "portable-mcp-stdio",
+  "platform": "windows-x64",
+  "camera_application_version": "1.9",
+  "tool_count": 31,
+  "protocol_versions": [
+    "2025-11-25",
+    "2025-06-18",
+    "2025-03-26",
+    "2024-11-05"
+  ],
+  "runtime": "runtime/FLIR_ROI_Camera.exe",
+  "arguments": [
+    "--mcp"
+  ],
+  "configuration_generator": "make_config.cmd",
+  "skill": "skills/flir-camera-harness/SKILL.md",
+  "schemas": "tools.json",
+  "exe_sha256": "14dc60838050b9384e7b7918f43cf77d5248cda5c3963214165a72119e1c0e51",
+  "runtime_build": {
+    "base_version": "1.1",
+    "extension_version": "1.9",
+    "harness_version": "1.0.0",
+    "python": "3.10",
+    "test_build": false,
+    "original_archive_members_unchanged": true,
+    "original_bootloader_unchanged": true,
+    "output_sha256": "14dc60838050b9384e7b7918f43cf77d5248cda5c3963214165a72119e1c0e51",
+    "extension_source_sha256": "92587771aef4709f3d9146f9f2f614574d64f4d462c7f5b7ffa74df4214d92be"
+  },
+  "defaults": {
+    "capture": false,
+    "phone_monitor": false,
+    "window_visible": false,
+    "calibration": "uncalibrated"
+  },
+  "source_inputs": {
+    "original_distribution_sha256": "883b0a52714561808f535d7b22ab01d70c1a811699fafadb6dab3c3576d6d049",
+    "patch_1_1_sha256": "e44f94b88c6ac97e1c18b29c4ca597631e1b6d62e6c4292f077721fb90171580"
+  },
+  "verification": "verification/verification.json",
+  "runtime_dependencies": "Bundled original Python/Qt/PySpin DLLs; existing compatible camera driver for hardware. No API key."
+}

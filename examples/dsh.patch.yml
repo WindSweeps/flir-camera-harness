@@ -1,0 +1,17 @@
+- insert:
+  - id: flir-camera
+    name: '@deepseek-ai/dsh-mcp-client'
+    config:
+      serverName: flir-camera
+      transport: stdio
+      command: 'C:/Data/FLIR_Camera_Harness/runtime/FLIR_ROI_Camera.exe'
+      args: ['--mcp', '--output-dir', 'C:/Data/FLIR_Camera_Harness/data']
+      toolCallTimeoutMs: 30000
+  - id: flir-camera-inventory
+    name: '@deepseek-ai/dsh-mcp-client'
+    config:
+      serverName: flir-camera-inventory
+      transport: stdio
+      command: 'C:/Data/flir-camera-harness/.venv/Scripts/python.exe'
+      args: ['C:/Data/flir-camera-harness/connection_inventory.py']
+      toolCallTimeoutMs: 30000

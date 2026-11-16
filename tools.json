@@ -1,0 +1,845 @@
+{
+  "tools": [
+    {
+      "name": "flir_status",
+      "description": "Cached camera, ROI, recording, photo, saturation and recent error state. Does not read SDK nodes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_list_cameras",
+      "description": "Enumerate FLIR cameras, or bundled replay images in replay mode. Does not start acquisition.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_open_camera",
+      "description": "Open one listed camera without starting acquisition; select by camera_id. Stop/close the previous camera first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "camera_id": {
+            "type": "string",
+            "description": "Exact camera_id from flir_list_cameras.",
+            "minLength": 1,
+            "maxLength": 2048
+          }
+        },
+        "required": [
+          "camera_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_close_camera",
+      "description": "Stop acquisition, release the device and clear the display. Stop recording first; photo writes drain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_start_capture",
+      "description": "Start the opened device in its configured continuous/external mode. External mode waits for Line0 rising edges.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_stop_capture",
+      "description": "Stop acquisition; pending photos drain. A continuous scalar recording remains open until record_stop.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_parameters",
+      "description": "Read global camera settings/capabilities including binning, formats and ROI. Default returns cached state; refresh reads once, never each poll.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "refresh": {
+            "type": "boolean",
+            "description": "Request a fresh global node read, limited to once per 2 seconds."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_set_exposure",
+      "description": "Set manual exposure in microseconds, disabling automatic exposure and gain. Returns actual readback.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "exposure_us": {
+            "type": "number",
+            "description": "",
+            "minimum": 0.001,
+            "maximum": 1000000000.0
+          }
+        },
+        "required": [
+          "exposure_us"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_set_gain",
+      "description": "Set manual gain in dB, disabling automatic exposure and gain. Returns actual readback.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "gain_db": {
+            "type": "number",
+            "description": "",
+            "minimum": -100,
+            "maximum": 200
+          }
+        },
+        "required": [
+          "gain_db"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_set_auto_brightness",
+      "description": "Enable/disable device automatic exposure AND gain. Optional gain upper limit must be supported by hardware; replay is simulation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": ""
+          },
+          "gain_upper_db": {
+            "type": "number",
+            "description": "",
+            "minimum": -100,
+            "maximum": 200
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_set_trigger",
+      "description": "Switch continuous or external FrameStart/Line0/RisingEdge/Input/non-inverted/OverlapOff. Transactional readback and rollback; no pulse generation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "",
+            "enum": [
+              "continuous",
+              "external"
+            ]
+          },
+          "delay_us": {
+            "type": "number",
+            "description": "",
+            "minimum": 0,
+            "maximum": 1000000000.0
+          }
+        },
+        "required": [
+          "mode"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_set_roi",
+      "description": "Set software measurement ROI in full image pixels. Clears the rolling curve and its warning history; running continuous records retain all earlier samples/warnings.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer",
+            "description": "",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "y": {
+            "type": "integer",
+            "description": "",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "width": {
+            "type": "integer",
+            "description": "",
+            "minimum": 1,
+            "maximum": 100000
+          },
+          "height": {
+            "type": "integer",
+            "description": "",
+            "minimum": 1,
+            "maximum": 100000
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "width",
+          "height"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_clear_curve",
+      "description": "Clear only rolling curve/history; continuous disk records are preserved.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_clear_peak",
+      "description": "Reset peak-hold measurement only; does not delete recorded data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_get_curve",
+      "description": "Return bounded points from the recent 60-second displayed curve; reports downsampling. Values are uncalibrated display DN sums.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "max_points": {
+            "type": "integer",
+            "description": "",
+            "minimum": 1,
+            "maximum": 2000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_preview",
+      "description": "Return one bounded JPEG of the complete latest image as MCP image content, with age and ROI metadata. No additional camera frame grab.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "max_width": {
+            "type": "integer",
+            "description": "",
+            "minimum": 120,
+            "maximum": 1280
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_export_curve",
+      "description": "Freeze and export current curve to paired CSV and compact parameter TXT in a background job. Refuses detected overexposure by default.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Absolute Windows path, or relative to the configured output directory.",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "overwrite": {
+            "type": "boolean",
+            "description": "Explicitly replace an existing CSV/TXT pair; default false."
+          },
+          "allow_saturated": {
+            "type": "boolean",
+            "description": "Set true only after user agrees to save detected overexposure; default false."
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_record_start",
+      "description": "Begin continuous scalar recording into a bounded queue and disk cache. Requires acquisition and valid ROI. Returns record_id; no 60-second limit.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_record_stop",
+      "description": "Stop accepting samples for record_id and asynchronously drain to cache. Poll record_status until done=true.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "description": "record_id returned by flir_record_start, flir_record_recover or status.",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "record_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_record_status",
+      "description": "Read counts, drain status, warning history and cache location for a record.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "description": "record_id returned by flir_record_start, flir_record_recover or status.",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "record_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_record_export",
+      "description": "Export a stopped/drained recording by streaming its cache. Retains cache on failure. Refuses overexposure/incomplete recording unless explicitly allowed.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Absolute Windows path, or relative to the configured output directory.",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "overwrite": {
+            "type": "boolean",
+            "description": "Explicitly replace an existing CSV/TXT pair; default false."
+          },
+          "allow_saturated": {
+            "type": "boolean",
+            "description": "Set true only after user agrees to save detected overexposure; default false."
+          },
+          "record_id": {
+            "type": "string",
+            "description": "record_id returned by flir_record_start, flir_record_recover or status.",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "allow_incomplete": {
+            "type": "boolean",
+            "description": "User accepts missing data after interrupted/failed recording; default false."
+          }
+        },
+        "required": [
+          "path",
+          "record_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_record_recover",
+      "description": "Inspect an existing stopped session.jsonl cache in a background job, without modifying it. Successful job returns a record_id for export.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cache_path": {
+            "type": "string",
+            "description": "Absolute Windows path, or relative to the configured output directory.",
+            "minLength": 1,
+            "maxLength": 2048
+          }
+        },
+        "required": [
+          "cache_path"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_job_status",
+      "description": "Poll a background job. done=true and status=succeeded are required before reporting saved files. Failed jobs return code/details; caches remain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "description": "",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_photo_configure",
+      "description": "Configure external-trigger TIFF+parameter TXT automatic saving. Stop acquisition and wait for photo drain first. Filename is host time_name_sequence.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": ""
+          },
+          "name": {
+            "type": "string",
+            "description": "",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "directory": {
+            "type": "string",
+            "description": "Absolute Windows path, or relative to the configured output directory.",
+            "minLength": 1,
+            "maxLength": 2048
+          }
+        },
+        "required": [
+          "enabled",
+          "name",
+          "directory"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_photo_status",
+      "description": "Read configured photo destination, last batch path, accepted/written/failed counts and pending bytes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_context_get",
+      "description": "Read experiment/calibration provenance. Physical conversion stays uncalibrated until a future verified calibration implementation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_context_set",
+      "description": "Merge experiment parameters. Reference files are hashed in a worker, not applied as dark/flat correction. Job completion marks when context takes effect.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "values": {
+            "type": "object",
+            "description": "",
+            "properties": {
+              "wavelength_nm": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "User supplied; null means unknown.",
+                "exclusiveMinimum": 0
+              },
+              "sensor_pixel_pitch_um_x": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "User supplied; null means unknown.",
+                "exclusiveMinimum": 0
+              },
+              "sensor_pixel_pitch_um_y": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "User supplied; null means unknown.",
+                "exclusiveMinimum": 0
+              },
+              "magnification": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "User supplied; null means unknown.",
+                "exclusiveMinimum": 0
+              },
+              "effective_output_pixel_size_um_x": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "User supplied; null means unknown.",
+                "exclusiveMinimum": 0
+              },
+              "effective_output_pixel_size_um_y": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "User supplied; null means unknown.",
+                "exclusiveMinimum": 0
+              },
+              "nd_transmission_fraction": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "User supplied; null means unknown.",
+                "exclusiveMinimum": 0,
+                "maximum": 1
+              },
+              "reference_plane": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Provenance only; no correction is applied.",
+                "maxLength": 4096
+              },
+              "optical_path_description": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Provenance only; no correction is applied.",
+                "maxLength": 4096
+              },
+              "calibration_source": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Provenance only; no correction is applied.",
+                "maxLength": 4096
+              },
+              "dark_reference_path": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Provenance only; no correction is applied.",
+                "maxLength": 4096
+              },
+              "flat_reference_path": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Provenance only; no correction is applied.",
+                "maxLength": 4096
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Provenance only; no correction is applied.",
+                "maxLength": 4096
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "values"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_monitor_addresses",
+      "description": "List local IPv4 addresses eligible for the read-only phone monitor.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_monitor_start",
+      "description": "Enable the existing read-only LAN phone monitor on an explicit local IPv4 address. Returns a private token-bearing access link; share only with intended users.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "host": {
+            "type": "string",
+            "description": "",
+            "minLength": 7,
+            "maxLength": 45
+          },
+          "port": {
+            "type": "integer",
+            "description": "",
+            "minimum": 1024,
+            "maximum": 65535
+          }
+        },
+        "required": [
+          "host"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_monitor_stop",
+      "description": "Disable the phone monitor and invalidate its access link.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "flir_show_window",
+      "description": "Show or hide the full existing camera GUI for local inspection.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "visible": {
+            "type": "boolean",
+            "description": ""
+          }
+        },
+        "required": [
+          "visible"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "FLIR Camera Harness"
+  short_description: "Operate FLIR cameras through portable MCP tools"
+  default_prompt: "Use $flir-camera-harness to configure, acquire and export a FLIR camera experiment."
